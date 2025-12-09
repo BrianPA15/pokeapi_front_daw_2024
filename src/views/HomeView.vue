@@ -32,7 +32,7 @@ const fetchPokemons = async () => {
   isLoading.value = true;
   errorMessage.value = '';
   try {
-    const response = await fetch('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=151');
+    const response = await fetch('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=152');
     const data = await response.json();
 
     const enriched = await Promise.all(
@@ -49,6 +49,7 @@ const fetchPokemons = async () => {
     );
 
     pokemonList.value = enriched;
+    console.log(pokemonList.value)
   } catch (error) {
     errorMessage.value = 'No se pudieron cargar los pokémon. Inténtalo de nuevo más tarde.';
     console.error(error);
