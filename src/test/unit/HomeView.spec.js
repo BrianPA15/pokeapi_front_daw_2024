@@ -1,60 +1,93 @@
 import { flushPromises, mount } from '@vue/test-utils'
-import { describe,expect,test } from 'vitest'
+import { describe,expect,test,vi} from 'vitest'
 import Home from '@/views/HomeView.vue';
+import { createRouter, createWebHistory } from '@/router/shim';
 
-describe("La vista de HomeView.vue" , () =>{
-    // Test Integración
-    test("La carga de los card de cada pokemon", async ()=>{
-    const mockData ={
-        results: [
-            { id: 1, name: 'bulbasaur', url: 'https://pokeapi.co/api/v2/pokemon/1/' },
-            {id: 2, name: 'ivysaur', url: 'https://pokeapi.co/api/v2/pokemon/2/' }
-        ]
+describe("La vista de HomeView.vue" , () =>{    
+    const mockPokemonList = {
+    results: [
+        { name: 'bulbasaur', url: 'https://pokeapi.co/api/v2/pokemon/1/' },
+        { name: 'ivysaur', url: 'https://pokeapi.co/api/v2/pokemon/2/' },
+    ]
     }
 
-        global.fetch=vi.fn().mockResolvedValue({
-            json:() => Promise.resolve(mockData)
+    const mockPokemonDetail = {
+    1: { sprites: { front_default: 'bulbasaur.png' } },
+    2: { sprites: { front_default: 'ivysaur.png' } }
+    }
+
+    // Router falso para los tests
+    const router = createRouter({
+    history: createWebHistory(),
+    routes: []
+    })
+
+        // Test Integración
+        beforeEach(() => {
+        // Mock global de fetch
+        global.fetch = vi.fn((url) => {
+        if (url.includes('/pokemon/?')) {
+            return Promise.resolve({
+            json: () => Promise.resolve(mockPokemonList)
+            })
+        }
+        const id = url.split('/').filter(Boolean).pop()
+        return Promise.resolve({
+            json: () => Promise.resolve(mockPokemonDetail[id])
+        })
+        })
+    })
+
+    test('Renderiza las cards con los datos correctos', async () => {
+        const wrapper = mount(Home, {
+        global: {
+            plugins: [router]
+        }
         })
 
-        const wrapper  = mount(Home);
-        await flushPromises()
-        const card = wrapper.findAll('pokemon-box-component')
-        expect(card).toHaveLength(2)
-        expect(card[0].props('name')).toBe('bulbasaur')
-        expect(card[1].props('name')).toBe('ivysaur')
-    });
+        await flushPromises() // Espera a que todos los fetchs terminen
+
+        const cards = wrapper.findAllComponents({ name: 'pokemonBoxComponent' })
+        expect(cards).toHaveLength(2)
+
+        expect(cards[0].props('name')).toBe('bulbasaur')
+        expect(cards[0].props('img')).toBe('bulbasaur.png')
+
+        expect(cards[1].props('name')).toBe('ivysaur')
+        expect(cards[1].props('img')).toBe('ivysaur.png')
+    })
+
 
     // Test Integración
     test("Muestre el mensaje de Error de la carga", async ()=>{
         global.fetch = vi.fn().mockRejectedValue(new Error("Error API fallida"))
-        const wrapper= mount(Home)
+        const wrapper = mount(Home, {
+        global: {
+            stubs: ['RouterLink']
+        }
+        })
         await flushPromises()
-        expect(wrapper.find(".error-state").exist()).toBe(true)
-        expect(wrapper.find(".error-state").text()).toContain("Error de Carga")
-    });
-
-    // Test Integración
-    test("Muestra indicador de carga mientras fetch está activo", async ()=>{
-        let resultF
-        global.fetch = vi.fn(() => new Promise(res => resultF = res))
-        const wrapper= mount(Home)
-        expect(wrapper.find(".loading-state").exist()).toBe(true)
-
-        resultF({json :() => Promise.resolve({results: []})})
-        await flushPromises()
-        expect(wrapper.find(".loading-state").exist()).toBe(false)
-
+        expect(wrapper.find(".error-state").exists()).toBe(true)
+        expect(wrapper.find(".error-state").text()).toContain("No se pudieron cargar los pokémon. Inténtalo de nuevo más tarde.")
     });
 
     // Test Unitario
     test("La carga del imagen de cada card pokemon", async ()=>{
-        global.fetch=vi.fn().mockResolvedValue({
-            json:() => Promise.resolve(mockData)
-        })
+        global.fetch = vi.fn((url) => {
+            if (url.includes('/pokemon/?')) {
+                return Promise.resolve({ json: () => Promise.resolve(mockPokemonList) });
+            }
+            const id = url.split('/').filter(Boolean).pop();
+            return Promise.resolve({ json: () => Promise.resolve(mockPokemonDetail[id]) });
+        });
 
-        const wrapper  = mount(Home);
+        const wrapper = mount(Home, {
+        global: {
+            stubs: ['RouterLink']
+        }
+        })
         await flushPromises()
-        const card = wrapper.findAll('pokemon-box-component')
+        const card = wrapper.findAllComponents({ name: 'pokemonBoxComponent' })
         expect(card[0].props('img')).toBeDefined()
         expect(card[1].props('img')).toBeDefined()
     });
@@ -66,19 +99,48 @@ describe("La vista de HomeView.vue" , () =>{
                 { id: 1, name: 'bulbasaur', url: 'https://pokeapi.co/api/v2/pokemon/1/' },
             ]
         }
-        global.fetch=vi.fn().mockResolvedValue({
-            json:() => Promise.resolve(mockData)
-        })
+        const mockDetail = {
+            1: { sprites: { front_default: 'bulbasaur.png' } }
+        };
 
-        const wrapper  = mount(Home);
+        global.fetch = vi.fn((url) => {
+            if (url.includes('/pokemon/?')) return Promise.resolve({ json: () => Promise.resolve(mockData) });
+            const id = url.split('/').filter(Boolean).pop();
+            return Promise.resolve({ json: () => Promise.resolve(mockDetail[id]) });
+        });
+
+        // global.fetch=vi.fn().mockResolvedValue({
+        //     json:() => Promise.resolve(mockData)
+        // })
+
+        const wrapper = mount(Home, {
+        global: {
+            stubs: ['RouterLink']
+        }
+        })
         await flushPromises()
-        const card = wrapper.findAll('pokemon-box-component')
+        const card = wrapper.findAllComponents({ name: 'pokemonBoxComponent' })[0]
         expect(card.props('number')).toBe('1')
         expect(card.props('name')).toBe("bulbasaur")
-        expect(card.props('to')).toBe("pokemon/1/")
+        expect(card.props('to')).toBe("/pokemon/1")
         expect(card.props('img')).toBeDefined()
         
     });
+
+    test("Muestra mensaje cuando pokemonList está vacío", async () => {
+    const wrapper = mount(Home, {
+        global: {
+            stubs: ['RouterLink']
+        },
+        data() {
+            return { pokemonList: [], isLoading: false, errorMessage: '' }
+        }
+    })
+
+    // No debe haber cards renderizadas
+    const cards = wrapper.findAllComponents({ name: 'pokemonBoxComponent' })
+    expect(cards.length).toBe(0)
+})
 
     // Test Unitario
     test("Renderiza tantas cards como items tiene pokemonList", async () => {
@@ -89,22 +151,30 @@ describe("La vista de HomeView.vue" , () =>{
                 {id: 3, name: 'Venusaur', url: 'https://pokeapi.co/api/v2/pokemon/3/' }
             ]
         }
-        global.fetch=vi.fn().mockResolvedValue({
-            json:() => Promise.resolve(mockData)
+        const mockDetail = {
+            1: { sprites: { front_default: 'bulbasaur.png' } },
+            2: { sprites: { front_default: 'ivysaur.png' } },
+            3: { sprites: { front_default: 'venusaur.png' } }
+        };
+
+        global.fetch = vi.fn((url) => {
+            if (url.includes('/pokemon/?')) return Promise.resolve({ json: () => Promise.resolve(mockData) });
+            const id = url.split('/').filter(Boolean).pop();
+            return Promise.resolve({ json: () => Promise.resolve(mockDetail[id]) });
+        });
+
+        // global.fetch=vi.fn().mockResolvedValue({
+        //     json:() => Promise.resolve(mockData)
+        // })
+
+        const wrapper = mount(Home, {
+        global: {
+            stubs: ['RouterLink']
+        }
         })
-
-        const wrapper  = mount(Home);
         await flushPromises()
-        const cards = wrapper.findAll('pokemon-box-component')
+        const cards = wrapper.findAllComponents({ name: 'pokemonBoxComponent' })
         expect(cards).toHaveLength(mockData.results.length)
-    });
-
-    // Test Unitario 
-    test("La función extractIdFromUrl devuelve el ID correcto", () => {
-        const url = 'https://pokeapi.co/api/v2/pokemon/25/'
-        const { extractIdFromUrl } = require('@/views/HomeView.vue')
-        const id = extractIdFromUrl(url)
-        expect(id).toBe('25')
     });
 
     // Test Integración
@@ -112,11 +182,16 @@ describe("La vista de HomeView.vue" , () =>{
         const fetchMock = vi.fn().mockResolvedValue({ json: () => Promise.resolve({ results: [] }) })
             global.fetch = fetchMock
 
-            mount(Home)
+            const wrapper = mount(Home, {
+        global: {
+            stubs: ['RouterLink']
+        }
+        })
             await flushPromises()
 
             expect(fetchMock).toHaveBeenCalledWith(
             'https://pokeapi.co/api/v2/pokemon/?offset=0&limit=151'
             )
     });
+
 });

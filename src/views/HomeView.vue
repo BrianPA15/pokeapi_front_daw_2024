@@ -32,7 +32,7 @@ const fetchPokemons = async () => {
   isLoading.value = true;
   errorMessage.value = '';
   try {
-    const response = await fetch('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=152');
+    const response = await fetch('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=151');
     const data = await response.json();
 
     const enriched = await Promise.all(
