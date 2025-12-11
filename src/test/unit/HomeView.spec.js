@@ -22,7 +22,6 @@ describe("La vista de HomeView.vue" , () =>{
     routes: []
     })
 
-        // Test Integración
         beforeEach(() => {
         // Mock global de fetch
         global.fetch = vi.fn((url) => {
@@ -38,6 +37,7 @@ describe("La vista de HomeView.vue" , () =>{
         })
     })
 
+    // Test Integración
     test('Renderiza las cards con los datos correctos', async () => {
         const wrapper = mount(Home, {
         global: {
@@ -127,6 +127,7 @@ describe("La vista de HomeView.vue" , () =>{
         
     });
 
+    // Test Unitario
     test("Muestra mensaje cuando pokemonList está vacío", async () => {
     const wrapper = mount(Home, {
         global: {
@@ -140,7 +141,7 @@ describe("La vista de HomeView.vue" , () =>{
     // No debe haber cards renderizadas
     const cards = wrapper.findAllComponents({ name: 'pokemonBoxComponent' })
     expect(cards.length).toBe(0)
-})
+    })
 
     // Test Unitario
     test("Renderiza tantas cards como items tiene pokemonList", async () => {
