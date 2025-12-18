@@ -184,7 +184,7 @@ describe("La vista de HomeView.vue" , () =>{
             await flushPromises()
 
             expect(fetchMock).toHaveBeenCalledWith(
-            'https://pokeapi.co/api/v2/pokemon/?offset=0&limit=151/rr'
+            'https://pokeapi.co/api/v2/pokemon/?offset=0&limit=151'
             )
     });
 
