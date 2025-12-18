@@ -47,10 +47,6 @@ describe("La vista de PokemonDetail.vue" , () =>{
 
     // Test Integración
     test('muestra correctamente la info del pokemon', async () => {
-        // const wrapper = mount(PokemonDetail, {
-        // global: { plugins: [router] },
-        // props: { id: 1 }
-        // });
             const wrapper = mount(PokemonDetail);
         await flushPromises() 
         expect(wrapper.text()).toContain('Un pokemon planta');
@@ -61,14 +57,6 @@ describe("La vista de PokemonDetail.vue" , () =>{
     // Test Integración
     test("Muestra mensaje de error si falla la carga", async ()=>{
         global.fetch=vi.fn().mockRejectedValue(new Error("Error de carga fallido"))
-        // const wrapper = mount(PokemonDetail, {
-        //     global: {
-        //         plugins: [router]
-        //     },
-        //     props: {
-        //         id: 1
-        //     }
-        // })
             const wrapper = mount(PokemonDetail);
         await flushPromises()
         const error= wrapper.find('.loading-state')
@@ -94,18 +82,6 @@ describe("La vista de PokemonDetail.vue" , () =>{
     
     // Test Integración
     test("La carga del imagen del pokemon", async ()=>{
-        // global.fetch=vi.fn()
-        // .mockResolvedValueOnce({json: () =>Promise.resolve(mockPokemonData)})
-        // .mockResolvedValueOnce({json: () =>Promise.resolve(mockSpecies)})
-
-        // const wrapper = mount(PokemonDetail, {
-        //     global: {
-        //         plugins: [router]
-        //     },
-        //     props: {
-        //         id: 1
-        //     }
-        // })
             const wrapper = mount(PokemonDetail);
         await flushPromises();
         const images = wrapper.findAll('img')
@@ -123,14 +99,6 @@ describe("La vista de PokemonDetail.vue" , () =>{
         .mockResolvedValueOnce({json: () =>Promise.resolve(data)})
         .mockResolvedValueOnce({json: () =>Promise.resolve(mockSpecies)})
 
-        // const wrapper = mount(PokemonDetail, {
-        //     global: {
-        //         plugins: [router]
-        //     },
-        //     props: {
-        //         id: 1
-        //     }
-        // })
             const wrapper = mount(PokemonDetail);
         await flushPromises();
         
@@ -141,18 +109,6 @@ describe("La vista de PokemonDetail.vue" , () =>{
 
      // Test Unitario
     test("Muestra correctamente los tipos del pokemon", async () => {
-        // global.fetch=vi.fn()
-        // .mockResolvedValueOnce({json: () =>Promise.resolve(mockPokemonData)})
-        // .mockResolvedValueOnce({json: () =>Promise.resolve(mockSpecies)})
-
-        // const wrapper = mount(PokemonDetail, {
-        //     global: {
-        //         plugins: [router]
-        //     },
-        //     props: {
-        //         id: 1
-        //     }
-        // })
             const wrapper = mount(PokemonDetail);
         await flushPromises();
         expect(wrapper.text()).toContain('grass')
@@ -160,14 +116,7 @@ describe("La vista de PokemonDetail.vue" , () =>{
 
     // Test Unitario
     test("Muestra correctamente las estadísticas del pokemon", async () => {
-        // const wrapper = mount(PokemonDetail, {
-        //     global: {
-        //         plugins: [router]
-        //     },
-        //     props: {
-        //         id: 1
-        //     }
-        // })
+
             const wrapper = mount(PokemonDetail);
         await flushPromises();
         expect(wrapper.text()).toContain('hp: 45')
@@ -188,14 +137,6 @@ describe("La vista de PokemonDetail.vue" , () =>{
 
         global.fetch = fetchMock
             const wrapper = mount(PokemonDetail);
-        // const wrapper = mount(PokemonDetail, {
-        //     global: {
-        //         plugins: [router]
-        //     },
-        //     props: {
-        //         id: 1
-        //     }
-        // })
         await flushPromises()
 
         expect(fetchMock).toHaveBeenCalledWith('https://pokeapi.co/api/v2/pokemon/1')
@@ -204,22 +145,3 @@ describe("La vista de PokemonDetail.vue" , () =>{
     });
 });
 
-
-        // const mockPokemonData = {
-        // id: 1,
-        // name: 'bulbasaur',
-        // sprites: {
-        //     front_default: 'front.png',
-        //     back_default: 'back.png',
-        //     other: { 'official-artwork': { front_default: 'art.png' } }
-        // },
-        // types: [{ slot: 1, type: { name: 'grass' } }],
-        // stats: [{ base_stat: 45, stat: { name: 'hp' } }],
-        // abilities: [{ ability: { name: 'overgrow' } }],
-        // moves: [{ move: { name: 'tackle' } }]
-        // }
-        // const mockSpeciesData = {
-        //     flavor_text_entries: [
-        //     { language: { name: 'es' }, flavor_text: 'Un pokémon planta' }
-        //     ]
-        // }

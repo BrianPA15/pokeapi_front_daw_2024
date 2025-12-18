@@ -109,9 +109,6 @@ describe("La vista de HomeView.vue" , () =>{
             return Promise.resolve({ json: () => Promise.resolve(mockDetail[id]) });
         });
 
-        // global.fetch=vi.fn().mockResolvedValue({
-        //     json:() => Promise.resolve(mockData)
-        // })
 
         const wrapper = mount(Home, {
         global: {
@@ -164,10 +161,6 @@ describe("La vista de HomeView.vue" , () =>{
             return Promise.resolve({ json: () => Promise.resolve(mockDetail[id]) });
         });
 
-        // global.fetch=vi.fn().mockResolvedValue({
-        //     json:() => Promise.resolve(mockData)
-        // })
-
         const wrapper = mount(Home, {
         global: {
             stubs: ['RouterLink']
@@ -191,8 +184,8 @@ describe("La vista de HomeView.vue" , () =>{
             await flushPromises()
 
             expect(fetchMock).toHaveBeenCalledWith(
-            'https://pokeapi.co/api/v2/pokemon/?offset=0&limit=151'
+            'https://pokeapi.co/api/v2/pokemon/?offset=0&limit=151/rr'
             )
     });
 
-});
+})
