@@ -1,6 +1,8 @@
 // vitest.setup.js
 
 import { beforeEach, afterEach, vi } from 'vitest'
+// vitest.setup.js
+import { expect } from 'vitest';
 
 // Mock global de fetch para todos los tests
 beforeEach(() => {
