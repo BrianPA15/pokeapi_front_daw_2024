@@ -55,7 +55,7 @@ jobs:
         run: npm install
 
       - name: Run unit tests
-        run: npx run test
+        run: npx vitest run
 
       - name: Build Vue
         run: npm run build
